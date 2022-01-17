@@ -1,11 +1,12 @@
 package ru.cyberfuzz.myfood.service;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import ru.cyberfuzz.myfood.DTO.FoodDTO;
 import ru.cyberfuzz.myfood.model.Food;
-import ru.cyberfuzz.myfood.model.FoodRemains;
-import ru.cyberfuzz.myfood.repository.FoodRemainsRepository;
 import ru.cyberfuzz.myfood.repository.FoodRepository;
 
 import java.util.List;
@@ -20,32 +21,37 @@ import java.util.List;
 public class MyFoodService {
 
     private final FoodRepository foodRepository;
-    private final FoodRemainsRepository foodRemainsRepository;
+    private final ApplicationContext applicationContext;
 
     public MyFoodService(FoodRepository foodRepository,
-                         FoodRemainsRepository foodRemainsRepository) {
+                         ApplicationContext applicationContext) {
         this.foodRepository = foodRepository;
-        this.foodRemainsRepository = foodRemainsRepository;
+        this.applicationContext = applicationContext;
     }
 
     public List<Food> findAll() {
         return foodRepository.findAll();
     }
 
-    public Food findByName(String name) {
+    @Transactional
+    public FoodDTO findByName(String name, int amount) {
         Food food = foodRepository.findByName(name);
         if (food == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Продукт не найден!");
         }
-        return food;
-    }
-
-    /* for Admins Only  */
-    public Food save(Food food, Integer remains) {
-        Food savedFood = foodRepository.save(food);
-        FoodRemains foodRemains = FoodRemains.of(savedFood.getId(), remains);
-        foodRemainsRepository.save(foodRemains);
-        return savedFood;
+        if (food.getAmount() < amount) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Количество продуктов в базе меньше чем в запросе!");
+        }
+        food.setAmount(food.getAmount() - amount);
+        FoodDTO foodDTO = applicationContext.getBean(FoodDTO.class);
+        int price = food.getPrice();
+        foodDTO.setId(food.getId());
+        foodDTO.setName(food.getName());
+        foodDTO.setPrice(price);
+        foodDTO.setAmount(amount);
+        foodDTO.setSum(amount * price);
+        return foodDTO;
     }
 }

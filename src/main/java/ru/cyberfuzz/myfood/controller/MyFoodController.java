@@ -1,6 +1,7 @@
 package ru.cyberfuzz.myfood.controller;
 
 import org.springframework.web.bind.annotation.*;
+import ru.cyberfuzz.myfood.DTO.FoodDTO;
 import ru.cyberfuzz.myfood.model.Food;
 import ru.cyberfuzz.myfood.service.MyFoodService;
 
@@ -28,8 +29,9 @@ public class MyFoodController {
         return myFoodService.findAll();
     }
 
-    @GetMapping("/{foodName}")
-    public Food findAll(@PathVariable String foodName) {
-        return myFoodService.findByName(foodName);
+    @GetMapping("/find")
+    public FoodDTO findFood(@RequestParam String foodName,
+                            @RequestParam Integer amount) {
+        return myFoodService.findByName(foodName, amount);
     }
 }

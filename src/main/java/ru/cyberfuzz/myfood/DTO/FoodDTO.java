@@ -1,34 +1,31 @@
-package ru.cyberfuzz.myfood.model;
+package ru.cyberfuzz.myfood.DTO;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.stereotype.Component;
 
-import javax.persistence.*;
 import java.util.Objects;
 
 /**
- * Класс Food
+ * Класс FoodDTO
  *
  * @author Evgeniy Zaytsev
  * @version 1.0
  */
-@Entity
+@Component
 @Getter
 @Setter
 @RequiredArgsConstructor
 @ToString
-public class Food {
+public class FoodDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
-    @Column(unique = true)
     private String name;
     private int price;
     private int amount;
+    private int sum;
 
     @Override
     public boolean equals(Object o) {
@@ -38,8 +35,8 @@ public class Food {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Food food = (Food) o;
-        return id == food.id;
+        FoodDTO foodDTO = (FoodDTO) o;
+        return id == foodDTO.id;
     }
 
     @Override
