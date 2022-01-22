@@ -54,4 +54,8 @@ public class MyFoodService {
         foodDTO.setSum(amount * price);
         return foodDTO;
     }
+
+    public Food saveFood(Food food) {
+        return foodRepository.save(food);
+    }
 }

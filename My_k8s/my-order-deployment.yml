@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-order
+  labels:
+    app: my-order
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-order
+  template:
+    metadata:
+      labels:
+        app: my-order
+    spec:
+      containers:
+        - name: my-order
+          image: cyberfuzz/my_order_image
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgresdb-secret
+                  key: postgres-username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresdb-secret
+                  key: postgres-password
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: postgresdb-configmap
+                  key: database_url
+            - name: URL_FOOD
+              valueFrom:
+                configMapKeyRef:
+                  name: my-order-configmap
+                  key: url-food
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-order-service
+spec:
+  selector:
+    app: my-order
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 31000

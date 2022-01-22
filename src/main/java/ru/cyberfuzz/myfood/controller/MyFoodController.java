@@ -34,4 +34,9 @@ public class MyFoodController {
                             @RequestParam Integer amount) {
         return myFoodService.findByName(foodName, amount);
     }
+
+    @PostMapping("/save")
+    public Food save(@RequestBody Food food) {
+        return myFoodService.saveFood(food);
+    }
 }
